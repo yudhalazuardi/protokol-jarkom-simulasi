@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jaringan Komputer Interaktif</title>
+<style>
+:root{--bg:#0b1220;--c:#131c31;--c2:#1b2742;--t:#e8eefc;--m:#9fb0d3;--a:#4cc9f0;--ok:#80ed99;--bad:#ff5d73}
+*{box-sizing:border-box}body{margin:0;font:15px/1.6 system-ui,Segoe UI,sans-serif;background:var(--bg);color:var(--t)}
+header{position:sticky;top:0;z-index:9;background:#0b1220ee;backdrop-filter:blur(8px);border-bottom:1px solid #26345a;padding:10px 16px}
+h1{font-size:18px;margin:0 0 8px}nav{display:flex;gap:8px;flex-wrap:wrap}
+button,select,input{font:inherit;color:var(--t);background:var(--c2);border:1px solid #2f3f69;border-radius:8px;padding:6px 12px}
+button{cursor:pointer}button:hover{border-color:var(--a)}button.on{background:var(--a);color:#05121a;border-color:var(--a);font-weight:600}
+main{max-width:980px;margin:auto;padding:16px}section{display:none}section.on{display:block}
+.card{background:var(--c);border:1px solid #26345a;border-radius:12px;padding:14px;margin:12px 0}
+h2{margin:.2em 0 .4em;font-size:20px}h3{margin:.2em 0;font-size:16px;color:var(--a)}p{margin:.4em 0;color:var(--m)}
+canvas{width:100%;height:auto;background:#0a1020;border-radius:10px;border:1px solid #26345a;display:block}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
+.lay{display:block;width:100%;text-align:left;margin:3px 0;border-left:6px solid}.cap{min-height:44px;color:var(--ok)}
+.pins{display:flex;gap:4px;margin:4px 0}.pin{width:38px;height:54px;border:2px solid #556;border-radius:6px;display:flex;align-items:flex-end;justify-content:center;font-size:12px;cursor:pointer;background:#0a1020}
+.pin.ok{border-color:var(--ok)}.pin.no{border-color:var(--bad)}.sw{width:34px;height:34px;padding:0;border-radius:6px}
+#gl{max-height:430px;overflow:auto;display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start}.chip{font-size:13px;padding:3px 10px}
+small{color:var(--m)}b.k{color:var(--a)}
+header h1{margin:0 0 2px}.dsn{display:block;margin-bottom:8px;color:var(--a)}
+
+/* Styles untuk ZTE & Lab */
+.zte{background:#fff;color:#223;border-radius:8px;overflow:hidden;font:13px Arial,sans-serif;margin:8px 0}.zad{background:#e8ecf2;color:#456;padding:5px 12px;font-size:12px}
+.zh{background:#0a5db8;color:#fff;padding:8px 14px;display:flex;justify-content:space-between}.zb{display:flex;min-height:250px}
+.zs{width:150px;background:#eef3fa;border-right:1px solid #cdd8e8}.zs div{padding:9px 12px;color:#245;cursor:pointer;border-bottom:1px solid #dde6f2}.zs .a{background:#fff;font-weight:700;color:#0a5db8}
+.zc{flex:1;padding:14px}.zc td{padding:5px 8px}.zc input,.zc select{background:#fff;color:#222;border:1px solid #9ab;border-radius:2px;padding:3px 6px}
+.zbtn{background:#0a5db8;color:#fff;border:0;padding:5px 18px;border-radius:2px;margin-right:6px}.phone{background:#0a1020;border:2px solid #4cc9f0;border-radius:14px;padding:10px;max-width:300px;margin:8px 0}
+
+/* Styles Keamanan */
+.sec-menu { display:flex; flex-direction:column; gap:6px; }
+.sec-btn { text-align:left; padding:10px 14px; border-left:4px solid var(--c2); border-radius:4px; }
+.sec-btn.on { border-left-color: var(--bad); background: #ff5d7322; color: #ff5d73; }
+.sec-box { padding: 14px; background: #0a1020; border: 1px solid #2f3f69; border-radius: 8px; }
+</style>
+</head>
+<body>
+<header>
+    <h1>🌐 Jaringan Komputer Interaktif</h1>
+    <small class="dsn">Dosen Pengampu: Lazuardi Yudha Pradana, S.Kom., M.Kom</small>
+    <nav>
+        <button data-t="osi" class="on">Model OSI &amp; TCP/IP</button>
+        <button data-t="med">Media Transmisi</button>
+        <button data-t="glo">Kamus Istilah</button>
+        <button data-t="sec">Keamanan 🔒</button>
+        <button data-t="lab">Lab Praktikum 🛠️</button>
+    </nav>
+</header>
+<main>
+
+<section id="osi" class="on">
+<div class="card"><h2>Apa itu model referensi?</h2>
+<p>Bayangkan mengirim paket lewat kurir: ada yang menulis alamat, memilih rute, lalu mengantar. Jaringan juga dibagi menjadi <b>lapisan (layer)</b>, setiap lapisan punya satu tugas. <b class="k">OSI</b> punya 7 lapisan (teori/standar), <b class="k">TCP/IP</b> punya 4 lapisan (yang dipakai di internet).</p>
+<p><b>Enkapsulasi</b> = data turun dari layer 7 ke 1 dan ditambah "amplop" (header) di tiap lapisan. <b>Dekapsulasi</b> = di penerima, amplop dilepas satu per satu dari layer 1 ke 7.</p></div>
+<div class="card"><h3>Simulasi pengiriman data (canvas)</h3>
+<canvas id="ocv" width="720" height="390"></canvas>
+<div class="row"><input id="omsg" value="Halo" maxlength="10" style="width:110px"><button id="osend">▶ Kirim pesan</button><button id="opause">⏸ Jeda</button><label><small>Kecepatan</small> <input id="ospd" type="range" min="0.4" max="3" step="0.1" value="1.1"></label></div>
+<div class="cap" id="ocap"></div>
+<small>Kotak kecil berangka pada paket = header dari layer tersebut. Biru kehijauan = bit/sinyal di media.</small></div>
+<div class="grid"><div class="card"><h3>Klik lapisan untuk belajar</h3><div id="ll"></div></div>
+<div class="card" id="li"><h3>Pilih lapisan</h3></div></div>
+<div class="card"><h3>Pemetaan OSI ↔ TCP/IP</h3><p><b>Application</b> (TCP/IP) = OSI 7 + 6 + 5 · <b>Transport</b> = OSI 4 · <b>Internet</b> = OSI 3 · <b>Network Access</b> = OSI 2 + 1</p></div>
+</section>
+
+<section id="med">
+<div class="card"><h2>Media transmisi</h2><p>Media transmisi adalah "jalan" tempat data berjalan. Klik salah satu untuk melihat animasinya.</p>
+<div class="row" id="mb"></div><canvas id="mcv" width="720" height="110"></canvas><div id="mi" style="margin-top:8px"></div></div>
+<div class="card"><h3>Praktik virtual: crimping kabel LAN (RJ-45)</h3>
+<p>Pilih warna kabel di palet, lalu klik slot pin untuk memasangnya. Pin 1 ada di sisi kiri. Standar: <b>T568B</b> → Oranye-Putih, Oranye, Hijau-Putih, Biru, Biru-Putih, Hijau, Coklat-Putih, Coklat.</p>
+<div class="row"><select id="cm"><option value="s">Straight (PC → Switch): T568B – T568B</option><option value="x">Crossover (PC → PC): T568B – T568A</option></select></div>
+<div class="row" id="pal"></div>
+<b>Ujung A</b><div class="pins" id="pA"></div><b>Ujung B</b><div class="pins" id="pB"></div>
+<div class="row"><button id="cchk">✔ Tes kabel</button><button id="crst">↺ Reset</button></div><div id="cmsg" class="cap"></div>
+<canvas id="ccv" width="720" height="150"></canvas></div>
+</section>
+
+<section id="glo">
+<div class="card"><h2>Kamus istilah jaringan</h2><p>Cari atau filter, klik istilah untuk melihat definisi dan animasinya.</p>
+<div class="row"><input id="gq" placeholder="🔍 cari istilah…"><span id="gc" class="row"></span></div>
+<div class="grid"><div id="gl"></div><div><h3 id="gn">Pilih istilah</h3><p id="gd"></p><canvas id="gcv" width="600" height="230"></canvas><button id="grp" style="margin-top:6px">↻ Ulangi animasi</button>
+<h3 style="margin-top:10px">Cara kerja di jaringan nyata</h3><p id="gw" style="color:var(--ok)">Pilih istilah untuk melihat posisinya di jaringan rumah/kantor.</p><canvas id="gtp" width="600" height="110"></canvas></div></div></div>
+</section>
+
+<section id="sec">
+<div class="card">
+    <h2>🔒 Keamanan Lapisan OSI &amp; TCP/IP</h2>
+    <p>Setiap layer dalam jaringan memiliki celah kerentanannya sendiri. Pilih layer di bawah untuk mempelajari serangan peretas (Hacker) beserta simulasi visualnya.</p>
+    <div class="grid" style="grid-template-columns: 200px 1fr;">
+        <div class="sec-menu" id="secMenu">
+            <button class="sec-btn on" onclick="setSec(7)">7. Application Layer</button>
+            <button class="sec-btn" onclick="setSec(4)">4. Transport Layer</button>
+            <button class="sec-btn" onclick="setSec(3)">3. Network Layer</button>
+            <button class="sec-btn" onclick="setSec(2)">2. Data Link Layer</button>
+            <button class="sec-btn" onclick="setSec(1)">1. Physical Layer</button>
+        </div>
+        <div>
+            <div class="sec-box">
+                <h3 id="secTitle" style="color:#ff5d73; margin-top:0;"></h3>
+                <p><b>Jenis Serangan:</b> <span id="secAtk" style="color:#ffd166;"></span></p>
+                <p id="secDesc"></p>
+                <p id="secEx" style="color:var(--m); font-style:italic; font-size:14px;"></p>
+            </div>
+            <canvas id="seccv" width="600" height="240" style="margin-top:12px; border-color:#ff5d7355;"></canvas>
+            <button onclick="secT=0" style="margin-top:8px;">↻ Ulangi Simulasi</button>
+        </div>
+    </div>
+</div>
+</section>
+
+<section id="lab">
+<div class="card">
+    <h2>🛠️ Lab Praktikum Jaringan & Analisis Layer</h2>
+    <p>10 Studi Kasus. <b>Soal 1:</b> Konfigurasi Modem. <b>Soal 2-10:</b> Amati animasi transmisi data, lalu tebak di Lapisan (Layer) mana operasi tersebut terjadi. Pilih nomor soal di bawah untuk mulai.</p>
+    <div class="row" id="lq"></div><b id="lsc"></b>
+</div>
+<div class="card" id="lbox">
+    <p>Pilih nomor soal di atas.</p>
+</div>
+</section>
+
+</main>
+<script>
+const h=i=>document.getElementById(i);let tab='osi';
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x==b));document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id==tab))});
+
+/* ===== OSI ===== */
+const LC=['#ef476f','#f78c6b','#ffd166','#06d6a0','#4cc9f0','#a78bfa','#c77dff'];
+const L=[null,['Physical','Bit','Jalan raya itu sendiri: mengubah data jadi sinyal listrik, cahaya, atau radio.','Ethernet 802.3, RJ-45, Fiber','Kabel, Hub, Repeater, Modem'],
+['Data Link','Frame','Nomor rumah dalam satu jalan: mengantar antar perangkat bersebelahan memakai MAC Address.','Ethernet, ARP, VLAN, Wi-Fi','Switch, Bridge, NIC, AP'],
+['Network','Packet','Alamat lengkap di surat: menentukan IP address dan rute terbaik antar jaringan.','IP, ICMP, OSPF, RIP','Router, Switch Layer 3'],
+['Transport','Segment','Kurir: memecah data, memberi nomor port, andal (TCP) atau cepat (UDP).','TCP, UDP','Firewall (port)'],
+['Session','Data','Telepon: membuka, menjaga, dan menutup sesi komunikasi.','NetBIOS, RPC','-'],
+['Presentation','Data','Penerjemah: format, kompresi, dan enkripsi data.','TLS/SSL, JPEG, ASCII','-'],
+['Application','Data','Kasir: antarmuka layanan jaringan untuk aplikasi (browser, email).','HTTP, HTTPS, DNS, FTP, SMTP, SSH','-']];
+const TI={7:'Application',6:'Application',5:'Application',4:'Transport',3:'Internet',2:'Network Access',1:'Network Access'};
+const SA={7:'membuat data dari aplikasi',6:'format/enkripsi data (+header)',5:'membuka sesi (+header)',4:'dipecah jadi Segment + nomor port (+header)',3:'menambah IP address → Packet',2:'menambah MAC address → Frame',1:'diubah jadi bit / sinyal di media'};
+const RA={1:'menerima sinyal, diubah jadi bit',2:'cek MAC, lepas header Frame',3:'cek IP, lepas header Packet',4:'cek port, susun Segment',5:'sesi dikenali, lepas header',6:'dekripsi/format dikembalikan',7:'data sampai ke aplikasi ✔'};
+for(let n=7;n>=1;n--){const b=document.createElement('button');b.className='lay';b.style.borderColor=LC[n-1];b.textContent=`${n}. ${L[n][0]} — ${L[n][1]} (TCP/IP: ${TI[n]})`;b.onclick=()=>{h('li').innerHTML=`<h3 style="color:${LC[n-1]}">Layer ${n}: ${L[n][0]}</h3><p><b>Analogi:</b> ${L[n][2]}</p><p><b>Unit data (PDU):</b> ${L[n][1]}</p><p><b>Protokol:</b> ${L[n][3]}</p><p><b>Perangkat:</b> ${L[n][4]}</p><p><b>TCP/IP:</b> ${TI[n]}</p>`};h('ll').appendChild(b)}
+const ox=h('ocv').getContext('2d');let op=0,opl=1;
+const yL=n=>24+(7-n)*50,lay=k=>k<=6?7-k:k-6;
+const pts=[...Array(14).keys()].map(k=>[k<=6?140:580,yL(lay(k))+20]);
+function drawOsi(dt){const sp=+h('ospd').value;if(opl)op+=dt*sp;if(op>14.6)op=0;
+const x=ox;x.clearRect(0,0,720,390);x.textAlign='center';x.font='bold 12px system-ui';x.fillStyle='#9fb0d3';x.fillText('PENGIRIM',140,14);x.fillText('PENERIMA',580,14);
+const k=Math.max(0,Math.min(13,Math.round(op))),near=Math.abs(op-k)<.35;
+for(const s of[40,480])for(let n=7;n>=1;n--){const act=near&&lay(k)==n&&((s==40)==(k<=6));x.fillStyle=act?LC[n-1]:LC[n-1]+'33';x.strokeStyle=LC[n-1];x.lineWidth=act?3:1;x.beginPath();x.roundRect(s,yL(n),200,40,8);x.fill();x.stroke();x.fillStyle=act?'#000':'#e8eefc';x.fillText(`${n}. ${L[n][0]} (${L[n][1]})`,s+100,yL(n)+25)}
+x.strokeStyle='#4cc9f0';x.setLineDash([6,6]);x.beginPath();x.moveTo(240,yL(1)+20);x.lineTo(480,yL(1)+20);x.stroke();x.setLineDash([]);x.fillStyle='#4cc9f0';x.fillText('media transmisi',360,yL(1)+12);
+const i=Math.min(Math.floor(op),12),f=op>=13?1:op-i,e=f*f*(3-2*f),a=pts[Math.min(i,13)],b=pts[Math.min(i+1,13)],px=a[0]+(b[0]-a[0])*e,py=a[1]+(b[1]-a[1])*e;
+const hc=k<=5?k:k==6?5:Math.max(0,12-k),bits=k==6||k==7,msg=h('omsg').value||'Halo',dw=bits?(hc*17+70):70,tw=hc*17+70,sx=px-tw/2;
+if(bits){x.fillStyle='#0f766e';x.beginPath();x.roundRect(sx,py-11,tw,22,5);x.fill();x.fillStyle='#fff';x.font='11px monospace';x.fillText('01101 0010 11010'.slice(0,Math.floor(tw/7)),px,py+4)}
+else{for(let j=hc-1;j>=0;j--){const cx=sx+(hc-1-j)*17;x.fillStyle=LC[5-j];x.beginPath();x.roundRect(cx,py-11,16,22,3);x.fill();x.fillStyle='#000';x.font='bold 10px system-ui';x.fillText(6-j,cx+8,py+4)}
+x.fillStyle='#f8fafc';x.beginPath();x.roundRect(sx+hc*17,py-11,70,22,4);x.fill();x.fillStyle='#000';x.font='bold 11px system-ui';x.fillText(msg,sx+hc*17+35,py+4)}
+const n=lay(k);h('ocap').textContent=`${k<=6?'Pengirim':'Penerima'} • Layer ${n} ${L[n][0]} → ${(k<=6?SA:RA)[n]}  [${L[n][1]}]`}
+h('osend').onclick=()=>{op=0;opl=1;h('opause').textContent='⏸ Jeda'};
+h('opause').onclick=()=>{opl=!opl;h('opause').textContent=opl?'⏸ Jeda':'▶ Lanjut'};
+
+/* ===== MEDIA ===== */
+const MD=[['UTP','el','Kabel tembaga 4 pasang twisted tanpa pelindung. Paling umum untuk LAN (Cat5e, Cat6).','100 Mbps–10 Gbps','maks. 100 m','Murah, mudah dipasang, rentan interferensi (EMI).'],
+['STP','el','Seperti UTP dengan pelindung foil untuk mengurangi EMI.','1–10 Gbps','maks. 100 m','Cocok di pabrik/area bising listrik; lebih mahal.'],
+['Fiber Optic','light','Mentransmisikan denyut cahaya lewat serat kaca/plastik. Kebal EMI.','1–100+ Gbps','hingga puluhan km','Backbone & antar gedung; modul SFP di switch/router.'],
+['Wireless','radio','Gelombang radio (Wi-Fi) lewat Access Point; ada SSID, WPA3, dan MIMO.','sampai beberapa Gbps','20–100 m','Praktis & mobile, tetapi lebih rentan gangguan/penyadapan.']];
+let mm=0;MD.forEach((m,i)=>{const b=document.createElement('button');b.textContent=m[0];b.onclick=()=>{mm=i;showM()};h('mb').appendChild(b)});
+function showM(){const m=MD[mm];h('mi').innerHTML=`<h3>${m[0]}</h3><p>${m[2]}</p><p>⚡ Kecepatan: <b>${m[3]}</b> · 📏 Jarak: <b>${m[4]}</b> · ${m[5]}</p>`}showM();
+const mx=h('mcv').getContext('2d');let mt=0;
+function drawMed(dt){mt+=dt;const x=mx,t=MD[mm][1];x.clearRect(0,0,720,110);x.fillStyle='#9fb0d3';x.font='12px system-ui';x.textAlign='center';x.fillText('Pengirim',40,100);x.fillText('Penerima',680,100);
+x.fillStyle='#1b2742';x.fillRect(10,35,60,40);x.fillRect(650,35,60,40);
+if(t=='radio'){x.strokeStyle='#4cc9f0';for(let r=0;r<4;r++){const q=((mt*.7+r/4)%1);x.globalAlpha=1-q;x.beginPath();x.arc(70,55,q*300,-.5,.5);x.stroke()}x.globalAlpha=1;return}
+x.strokeStyle=t=='light'?'#cbd5e1':'#b8793a';x.lineWidth=t=='light'?10:3;x.beginPath();
+for(let i=70;i<=650;i+=4){const y=55+(t=='el'?Math.sin(i/6)*5:0);i==70?x.moveTo(i,y):x.lineTo(i,y)}x.stroke();x.lineWidth=1;
+for(let p=0;p<6;p++){const q=((mt*.5+p/6)%1),px=70+q*580;x.fillStyle=t=='light'?'#fff':'#ffd166';x.shadowColor=x.fillStyle;x.shadowBlur=12;x.beginPath();x.arc(px,55+(t=='light'?Math.sin(px/30)*2:0),t=='light'?5:4,0,7);x.fill();x.shadowBlur=0}}
+/* crimp */
+const WC={ow:['Oranye-Putih','#ff8c1a',1],o:['Oranye','#ff8c1a'],gw:['Hijau-Putih','#2ecc71',1],g:['Hijau','#2ecc71'],b:['Biru','#3b82f6'],bw:['Biru-Putih','#3b82f6',1],nw:['Coklat-Putih','#8b5a2b',1],n:['Coklat','#8b5a2b']};
+const TB=['ow','o','gw','b','bw','g','nw','n'],TA=['gw','g','ow','b','bw','o','nw','n'];
+const sw=k=>{const c=WC[k];return c[2]?`repeating-linear-gradient(45deg,${c[1]} 0 4px,#fff 4px 8px)`:c[1]};
+let pal=null,E={A:Array(8).fill(null),B:Array(8).fill(null)},R={A:[],B:[]},cab=null;
+Object.keys(WC).forEach(k=>{const b=document.createElement('button');b.className='sw';b.style.background=sw(k);b.title=WC[k][0];b.onclick=()=>{pal=k;h('cmsg').textContent='Terpilih: '+WC[k][0]};h('pal').appendChild(b)});
+function rp(){['A','B'].forEach(e=>{const c=h('p'+e);c.innerHTML='';E[e].forEach((v,i)=>{const d=document.createElement('div');d.className='pin '+(R[e][i]||'');if(v)d.style.background=sw(v);d.textContent=i+1;d.onclick=()=>{if(pal){E[e][i]=pal;R[e]=[];cab=null;rp()}};c.appendChild(d)})})}rp();
+h('crst').onclick=()=>{E={A:Array(8).fill(null),B:Array(8).fill(null)};R={A:[],B:[]};cab=null;h('cmsg').textContent='';rp()};
+h('cchk').onclick=()=>{if([...E.A,...E.B].includes(null)){h('cmsg').textContent='⚠ Lengkapi semua pin dulu.';return}
+const tb=h('cm').value=='x'?TA:TB;let bad=0;R.A=E.A.map((v,i)=>v==TB[i]?'ok':(bad++,'no'));R.B=E.B.map((v,i)=>v==tb[i]?'ok':(bad++,'no'));cab=bad?'bad':'ok';rp();
+h('cmsg').textContent=bad?`❌ ${bad} pin salah. Link tidak menyala — urutan harus sesuai standar.`:'✅ Kabel benar! Link menyala dan data bisa mengalir.'};
+const cx=h('ccv').getContext('2d');let ct=0;
+function drawCab(dt){ct+=dt;const x=cx;x.clearRect(0,0,720,150);x.font='13px system-ui';x.textAlign='center';
+x.fillStyle='#1b2742';x.fillRect(20,45,90,60);x.fillRect(610,45,90,60);x.fillStyle='#e8eefc';x.fillText('PC 1',65,80);x.fillText(h('cm').value=='x'?'PC 2':'Switch',655,80);
+const col=cab=='ok'?'#80ed99':cab=='bad'?'#ff5d73':'#556';x.strokeStyle=col;x.lineWidth=4;x.setLineDash(cab=='bad'?[8,8]:[]);x.beginPath();x.moveTo(110,75);x.lineTo(610,75);x.stroke();x.setLineDash([]);
+x.fillStyle=col;[[105,50],[615,50]].forEach(p=>{x.beginPath();x.arc(p[0],p[1],5,0,7);x.fill()});
+if(cab=='ok')for(let p=0;p<5;p++){const q=(ct*.5+p/5)%1;x.fillStyle='#4cc9f0';x.beginPath();x.arc(110+q*500,75,6,0,7);x.fill()}
+if(cab=='bad'){x.fillStyle='#ff5d73';x.font='bold 30px system-ui';x.fillText('✖',360,70);x.font='13px system-ui';x.fillText('tidak ada koneksi',360,100)}
+if(!cab){x.fillStyle='#9fb0d3';x.fillText('Rakit kabel lalu klik "Tes kabel"',360,115)}}
+
+/* ===== KAMUS ISTILAH ASLI ===== */
+const ch=(Ls,l,c='#4cc9f0',bk='balasan')=>{const n=Ls.map((t,i)=>[i,70+i*460/(Ls.length-1),115,t]),s=[];for(let i=0;i<Ls.length-1;i++)s.push([[i,i+1,l,c]]);if(bk)for(let i=Ls.length-1;i>0;i--)s.push([[i,i-1,bk,'#80ed99']]);return{n,s}};
+const star=(cl,...s)=>({n:[['c',300,115,cl],[0,90,35,'PC1'],[1,90,195,'PC2'],[2,510,35,'PC3'],[3,510,195,'PC4']],s});
+const two=(a,b,...s)=>({n:[[0,90,115,a],[1,510,115,b]],s});
+const cs=(a,b,q,r)=>two(a,b,[[0,1,q,'#4cc9f0']],[[1,0,r,'#80ed99']]);
+const par=(l,c)=>two('Sumber','Tujuan',[[0,1,l,c,0],[0,1,l,c,0],[0,1,l,c,0]].map((m,i)=>m));
+const HS=two('Klien','Server',[[0,1,'SYN','#ffd166']],[[1,0,'SYN-ACK','#ffd166']],[[0,1,'ACK','#ffd166']],[[0,1,'DATA','#4cc9f0']]);
+const LOSS=two('Pengirim','Penerima',[[0,1,'P1','#4cc9f0']],[[0,1,'P2','#ff5d73',1]],[[0,1,'P3','#4cc9f0']],[[0,1,'kirim ulang P2','#ffd166']]);
+const JIT=two('Pengirim','Penerima',[[0,1,'P1','#4cc9f0',0,.5]],[[0,1,'P2','#4cc9f0',0,1.8]],[[0,1,'P3','#4cc9f0',0,.6]],[[0,1,'P4','#4cc9f0',0,2]]);
+const DD={n:[[0,70,25,'Bot'],[1,70,85,'Bot'],[2,70,145,'Bot'],[3,70,205,'Bot'],['s',520,115,'Server']],s:[[0,1,2,3].map(i=>[i,'s','req!','#ff5d73']),[0,1,2,3].map(i=>[i,'s','req!!','#ff5d73'])]};
+const FW={n:[[0,70,115,'Internet'],[1,300,115,'Firewall'],[2,530,115,'Server']],s:[[[0,1,'HTTPS :443','#80ed99']],[[1,2,'diizinkan','#80ed99']],[[0,1,'Telnet :23','#ff5d73',1]]]};
+const NT={n:[[0,70,115,'PC 192.168.1.10'],[1,300,115,'Router NAT'],[2,530,115,'Internet']],s:[[[0,1,'src 192.168.1.10','#4cc9f0']],[[1,2,'src 203.0.113.5','#ffd166']],[[2,1,'ke 203.0.113.5','#ffd166']],[[1,0,'ke 192.168.1.10','#4cc9f0']]]};
+const DH=two('PC','DHCP Server',[[0,1,'Discover','#ffd166']],[[1,0,'Offer 192.168.1.20','#80ed99']],[[0,1,'Request','#ffd166']],[[1,0,'Ack ✔','#80ed99']]);
+const U=two('Streaming','Penonton',[[0,1,'frame1','#4cc9f0']],[[0,1,'frame2','#4cc9f0']],[[0,1,'frame3','#4cc9f0']]);
+const BC=star('HUB',[[0,'c','Data','#ffd166']],[[ 'c',1,'Data','#ffd166'],['c',2,'Data','#ffd166'],['c',3,'Data','#ffd166']]);
+const SW=star('SWITCH',[[0,'c','ke MAC PC3','#4cc9f0']],[['c',2,'hanya PC3','#80ed99']]);
+const ARP=star('SWITCH',[[0,'c','Siapa IP .3?','#ffd166']],[['c',1,'ARP?','#ffd166'],['c',2,'ARP?','#ffd166'],['c',3,'ARP?','#ffd166']],[[2,'c','Saya, MAC AA:BB','#80ed99']],[['c',0,'MAC AA:BB','#80ed99']]);
+const VL={n:[['c',300,115,'Switch'],[0,90,35,'PC1 VLAN10'],[1,90,195,'PC2 VLAN20'],[2,510,35,'PC3 VLAN10'],[3,510,195,'PC4 VLAN20']],s:[[[0,'c','broadcast','#ffd166']],[['c',2,'hanya VLAN10','#80ed99']]]};
+const WF=ch(['HP','Access Point','Router'],'Wi-Fi');
+const T=[
+['Skala','LAN','Jaringan area terbatas: rumah, sekolah, kantor.',()=>ch(['PC','Switch','PC'],'data')],
+['Skala','WAN','Jaringan area luas penghubung banyak LAN; contoh terbesar: Internet.',()=>ch(['LAN A','Router','Internet','Router','LAN B'],'data',undefined,0)],
+['Skala','MAN','Jaringan satu kota/kampus besar; lebih besar dari LAN, lebih kecil dari WAN.',()=>ch(['Gedung A','Kampus','Gedung B'],'data')],
+['Skala','WLAN','LAN yang memakai nirkabel (Wi-Fi) sebagai media.',()=>WF],
+['Skala','PAN','Jaringan jarak sangat dekat antar perangkat pribadi, mis. Bluetooth.',()=>ch(['HP','Earbuds'],'Bluetooth')],
+['Perangkat','NIC','Kartu jaringan: komponen fisik agar komputer terhubung ke jaringan.',()=>cs('PC (NIC)','Switch','frame','ack')],
+['Perangkat','Router','Menghubungkan jaringan berbeda dan mencari rute terbaik untuk paket.',()=>ch(['LAN','Router','Internet'],'paket IP')],
+['Perangkat','Switch','Meneruskan frame hanya ke port MAC tujuan (Layer 2).',()=>SW],
+['Perangkat','Hub','Mem-broadcast data ke semua port; sudah digantikan switch.',()=>BC],
+['Perangkat','Access Point','Menjembatani perangkat nirkabel ke jaringan kabel.',()=>WF],
+['Perangkat','Repeater','Menguatkan dan memancarkan ulang sinyal agar jangkauan lebih jauh.',()=>ch(['A','Repeater','B'],'sinyal','#ffd166',0)],
+['Perangkat','Modem','Mengubah sinyal digital ↔ analog untuk lewat jalur ISP.',()=>ch(['PC','Modem','ISP'],'sinyal')],
+['Perangkat','Bridge','Membagi jaringan besar jadi segmen kecil untuk kurangi collision.',()=>ch(['Segmen 1','Bridge','Segmen 2'],'frame')],
+['Alamat','IP Address','Label numerik unik (IPv4/IPv6) untuk identifikasi perangkat.',()=>cs('192.168.1.10','192.168.1.1','dari .10','ke .10')],
+['Alamat','MAC Address','Alamat fisik 48-bit yang tertanam pada NIC.',()=>cs('AA:11','BB:22','ke BB:22','ke AA:11')],
+['Alamat','Gateway','IP router sebagai pintu keluar jaringan lokal.',()=>ch(['PC','Gateway','Internet'],'tujuan luar')],
+['Alamat','ARP','Mencari MAC Address jika hanya IP-nya yang diketahui.',()=>ARP],
+['Protokol','TCP','Andal: berjabat tangan 3 langkah dulu sebelum data.',()=>HS],
+['Protokol','UDP','Tanpa koneksi, cepat tapi tak menjamin sampai (streaming).',()=>U],
+['Protokol','DNS','Menerjemahkan nama domain jadi IP.',()=>cs('Browser','DNS','google.com?','142.250.x.x')],
+['Protokol','DHCP','Membagikan IP otomatis.',()=>DH],
+['Protokol','HTTP/HTTPS','Transfer halaman web.',()=>cs('Browser','Web','GET 🔒','HTML')],
+['Protokol','ICMP / Ping','Pelaporan error dan tes jaringan.',()=>cs('PC','Target','Echo Request','Echo Reply')]
+];
+const gx=h('gcv').getContext('2d');let sc=null,si=0,st=0;
+const cats=['Semua',...new Set(T.map(t=>t[0]))];let gcat='Semua';
+cats.forEach(c=>{const b=document.createElement('button');b.textContent=c;b.className='chip'+(c==gcat?' on':'');b.onclick=()=>{gcat=c;[...h('gc').children].forEach(x=>x.classList.toggle('on',x==b));rg()};h('gc').appendChild(b)});
+function rg(){const q=h('gq').value.toLowerCase();h('gl').innerHTML='';T.filter(t=>(gcat=='Semua'||t[0]==gcat)&&(t[1]+t[2]).toLowerCase().includes(q)).forEach(t=>{const b=document.createElement('button');b.className='chip';b.textContent=t[1];b.onclick=()=>{h('gn').textContent=t[1];h('gd').textContent=t[2];cur=t;sc=t[3]();si=0;st=0;const w=NR[t[1]]||['all','Pilih istilah untuk melihat posisinya.'];gwh=w[0];h('gw').textContent=w[1]};h('gl').appendChild(b)})}
+let cur=null;h('gq').oninput=rg;rg();h('grp').onclick=()=>{if(cur){si=0;st=0}};
+function drawSc(dt){const x=gx;x.clearRect(0,0,600,230);if(!sc){x.fillStyle='#9fb0d3';x.textAlign='center';x.font='14px system-ui';x.fillText('Pilih istilah di sebelah kiri',300,115);return}
+const N={};sc.n.forEach(n=>N[n[0]]=n);x.strokeStyle='#2f3f69';x.lineWidth=2;sc.s.forEach(s=>s.forEach(m=>{x.beginPath();x.moveTo(N[m[0]][1],N[m[0]][2]);x.lineTo(N[m[1]][1],N[m[1]][2]);x.stroke()}));
+x.font='bold 11px system-ui';x.textAlign='center';sc.n.forEach(n=>{x.fillStyle='#1b2742';x.strokeStyle='#4cc9f0';x.lineWidth=1;x.beginPath();x.roundRect(n[1]-42,n[2]-17,84,34,8);x.fill();x.stroke();x.fillStyle='#e8eefc';x.fillText(String(n[3]).slice(0,15),n[1],n[2]+4)});
+const step=sc.s[si],D=step[0][5]||1.1;st+=dt;if(st>=0){const k=Math.min(st/D,1);
+step.forEach((m,j)=>{const a=N[m[0]],b=N[m[1]],kk=m[4]?k*.55:k,px=a[1]+(b[1]-a[1])*kk,py=a[2]+(b[2]-a[2])*kk-(step.length>1&&m[0]==step[0][0]?(j-1)*7:0);
+if(m[4]&&k>=1){x.fillStyle='#ff5d73';x.font='bold 22px system-ui';x.fillText('✖ hilang',px,py+6)}else{x.fillStyle=m[3];x.shadowColor=m[3];x.shadowBlur=10;x.beginPath();x.arc(px,py,7,0,7);x.fill();x.shadowBlur=0;x.fillStyle='#fff';x.font='11px system-ui';x.fillText(m[2],px,py-13)}})}
+if(st>D+.3){st=0;si++;if(si>=sc.s.length){si=0;st=-.8}}}
+const NR={'LAN':['sw','Laptop, PC, dan printer di satu rumah tersambung ke switch/AP yang sama.'],'WAN':['isp','Trafik melewati banyak router dan jarak ratusan kilometer.'],'Router':['rt','Paket dikirim ke router yang membaca IP tujuan lalu meneruskannya.'],'Switch':['sw','Switch mempelajari MAC tiap port.'],'Modem':['md','Mengubah data digital menjadi sinyal yang dipahami ISP.'],'IP Address':['pc','IP dipakai router untuk tahu ke mana balasan dikirim.'],'TCP':['net','Browser dan server berjabat tangan sebelum transfer data.'],'UDP':['net','Video call mengirim paket tanpa jabat tangan.']};
+const tx=h('gtp').getContext('2d'),TN=[['pc','HP / PC'],['sw','Switch / AP'],['rt','Router'],['md','Modem'],['isp','ISP'],['net','Internet']];let gwh='all',tp=0;
+function drawTop(dt){tp=(tp+dt/9)%1;const x=tx,X=i=>50+i*100;x.clearRect(0,0,600,110);x.textAlign='center';x.font='bold 11px system-ui';
+x.strokeStyle='#2f3f69';x.lineWidth=3;x.beginPath();x.moveTo(X(0),55);x.lineTo(X(5),55);x.stroke();
+TN.forEach((n,i)=>{const on=gwh=='all'||gwh==n[0];x.fillStyle=on?'#4cc9f0':'#1b2742';x.shadowColor='#4cc9f0';x.shadowBlur=on&&gwh!='all'?14+Math.sin(tp*60)*6:0;x.beginPath();x.roundRect(X(i)-40,38,80,34,8);x.fill();x.shadowBlur=0;x.fillStyle=on?'#000':'#e8eefc';x.fillText(n[1],X(i),59)});
+const f=tp<.5?tp*2:2-tp*2;x.fillStyle=tp<.5?'#ffd166':'#80ed99';x.beginPath();x.arc(X(0)+f*(X(5)-X(0)),55,7,0,7);x.fill();x.fillText(tp<.5?'permintaan →':'← balasan',X(0)+f*(X(5)-X(0)),30)}
+
+/* ===== KEAMANAN LAYER ===== */
+const SEC_DATA = {
+    7: { t:'Application Layer', a:'SQL Injection, XSS, Phishing, HTTP Flood', d:'Penyerang memanipulasi form input atau protokol web tingkat tinggi untuk mencuri kredensial atau merusak database server.', ex:"Contoh: Memasukkan string khusus seperti ' OR 1=1 -- pada kotak login web." },
+    4: { t:'Transport Layer', a:'SYN Flood (DDoS), Port Scanning', d:'Peretas membanjiri antrean TCP server dengan permintaan jabat tangan setengah terbuka (SYN) tapi tak pernah menyelesaikannya. Akibatnya antrean penuh.', ex:"Contoh: Server Web kewalahan dan gagal merespons pengunjung asli (Timeout)." },
+    3: { t:'Network Layer', a:'IP Spoofing, Ping of Death, ICMP Flood', d:'Memalsukan alamat IP asal (Spoofing) untuk mengelabui router, atau mengirimkan banyak paket ICMP (Ping) berukuran tidak normal agar router / server crash.', ex:"Contoh: Hacker memakai alamat IP dari PC internal jaringan agar dipercaya oleh Firewall." },
+    2: { t:'Data Link Layer', a:'MAC Spoofing, ARP Poisoning (Man-in-the-Middle)', d:'Mengelabui tabel ARP pada Switch lokal. Hacker mem-broadcast bahwa "MAC Address saya adalah milik Router".', ex:"Contoh: Data PC korban yang menuju ke internet disadap dulu oleh Hacker yang menyamar sebagai Gateway." },
+    1: { t:'Physical Layer', a:'Wiretapping (Penyadapan Kabel), Pemotongan Fisik, Jamming', d:'Serangan langsung ke medium fisik tanpa menyentuh software. Bisa dengan memotong fiber optik atau memakai jammer radio pemutus sinyal Wi-Fi.', ex:"Contoh: Menggunakan alat khusus yang ditempelkan di kabel UTP untuk mencuri bit sinyal listrik." }
+};
+let secLayer = 7, secT = 0; const scx = h('seccv').getContext('2d');
+window.setSec = function(L) {
+    secLayer = L; secT = 0;
+    const btns = h('secMenu').querySelectorAll('button');
+    btns.forEach(b => b.classList.toggle('on', b.textContent.startsWith(L + ".")));
+    const D = SEC_DATA[L];
+    h('secTitle').textContent = `Layer ${L}: ${D.t}`;
+    h('secAtk').textContent = D.a; h('secDesc').textContent = D.d; h('secEx').textContent = D.ex;
+}
+setSec(7); // init layer 7
+function drawSecAnimation(dt) {
+    secT += dt; const x = scx;
+    x.clearRect(0,0,600,240); x.font = '12px system-ui'; x.textAlign = 'center';
+    const drawPC = (px, py, txt, clr='#9fb0d3') => { x.fillStyle='#1b2742'; x.fillRect(px-25, py-20, 50, 40); x.fillStyle=clr; x.fillText(txt, px, py-30); };
+    const drawServer = (px, py, txt, clr='#9fb0d3') => { x.fillStyle='#2c3e50'; x.fillRect(px-25, py-30, 50, 60); x.fillStyle='#1a252f'; x.fillRect(px-15, py-20, 30, 10); x.fillRect(px-15, py, 30, 10); x.fillStyle=clr; x.fillText(txt, px, py-40); };
+    if(secLayer === 7) { 
+        drawPC(100, 120, 'Hacker', '#ff5d73'); drawServer(500, 120, 'Web Database');
+        let cycle = secT % 4;
+        if(cycle < 2) {
+            let p = cycle/2; x.fillStyle='#ff5d73'; x.beginPath(); x.arc(125 + p*350, 120, 5, 0, 7); x.fill();
+            x.fillText("SELECT * WHERE pw=' OR 1=1 --", 125 + p*350, 105);
+        } else {
+            x.fillStyle='#ff5d73'; x.font='bold 16px system-ui'; x.fillText("DATA BOCOR / LOGIN SUKSES!", 500, 170);
+            x.strokeStyle='#ff5d73'; x.lineWidth=2; x.strokeRect(460, 80, 80, 80);
+        }
+    } else if(secLayer === 4) { 
+        drawPC(100, 50, 'Bot 1', '#ff5d73'); drawPC(100, 120, 'Bot 2', '#ff5d73'); drawPC(100, 190, 'Bot 3', '#ff5d73'); drawServer(500, 120, 'Server Web');
+        x.fillStyle='#1b2742'; x.fillRect(560, 60, 20, 120); x.fillStyle='#e8eefc'; x.fillText("Antrean", 570, 50);
+        let q = Math.min((secT % 5)/2, 1); x.fillStyle='#ff5d73'; x.fillRect(560, 180 - q*120, 20, q*120);
+        for(let i of [50, 120, 190]) {
+            let p = (secT*1.5 + i/100) % 1; x.fillStyle='#ff5d73'; x.beginPath(); x.arc(125 + p*350, i, 4, 0, 7); x.fill(); x.fillText("SYN", 125 + p*350, i-10);
+        }
+        if(secT % 5 > 2.5) { x.fillStyle='#ff5d73'; x.font='bold 14px system-ui'; x.fillText("SERVER TIMEOUT", 500, 180); }
+    } else if(secLayer === 3) { 
+        drawPC(100, 60, 'Hacker', '#ff5d73'); drawPC(100, 180, 'Karyawan', '#80ed99'); drawServer(500, 120, 'Server Perusahaan');
+        x.strokeStyle='#2f3f69'; x.beginPath(); x.moveTo(250, 20); x.lineTo(250, 220); x.stroke(); x.fillText("Firewall", 250, 15);
+        let p = (secT % 3)/3, cx = 125 + p*350, cy = 60 + p*60; 
+        x.fillStyle = cx > 250 ? '#80ed99' : '#ff5d73'; x.beginPath(); x.arc(cx, cy, 6, 0, 7); x.fill();
+        x.fillText(cx > 250 ? "IP Karyawan (Palsu)" : "IP Hacker Asli", cx, cy-15);
+    } else if(secLayer === 2) { 
+        drawPC(100, 120, 'PC Korban', '#4cc9f0'); drawServer(500, 120, 'Gateway Router', '#80ed99'); drawPC(300, 200, 'Hacker (MitM)', '#ff5d73');
+        x.fillStyle='#2c3e50'; x.fillRect(275, 105, 50, 30); x.fillStyle='#fff'; x.fillText("Switch", 300, 125);
+        let cycle = secT % 6;
+        if(cycle < 2) {
+            let p = cycle/2; x.fillStyle='#ff5d73'; x.beginPath(); x.arc(300 - p*200, 200 - p*80, 5, 0, 7); x.fill(); x.fillText("ARP: Saya Gateway", 300 - p*200, 200 - p*80 - 15);
+        } else if(cycle < 4) {
+            let p = (cycle-2)/2; x.fillStyle='#4cc9f0'; x.beginPath(); x.arc(100 + p*200, 120 + p*80, 5, 0, 7); x.fill(); x.fillText("Data Rahasia", 100 + p*200, 120 + p*80 - 15);
+        } else {
+            x.fillStyle='#ff5d73'; x.fillText("Disadap!", 300, 180);
+            let p = (cycle-4)/2; x.fillStyle='#ff5d73'; x.beginPath(); x.arc(300 + p*200, 200 - p*80, 5, 0, 7); x.fill();
+        }
+    } else if(secLayer === 1) { 
+        drawPC(100, 120, 'PC A'); drawServer(500, 120, 'PC B');
+        x.strokeStyle='#4cc9f0'; x.lineWidth=4; x.beginPath(); x.moveTo(125, 120); x.lineTo(475, 120); x.stroke();
+        x.fillStyle='#ff5d73'; x.fillText("Hacker", 300, 70); x.strokeStyle='#ff5d73'; x.lineWidth=2; x.beginPath(); x.moveTo(300, 80); x.lineTo(300, 120); x.stroke();
+        let snip = Math.sin(secT*5)*10; x.beginPath(); x.moveTo(300,120); x.lineTo(290, 130 + snip); x.stroke(); x.beginPath(); x.moveTo(300,120); x.lineTo(310, 130 + snip); x.stroke();
+        x.fillStyle='#e8eefc'; x.fillText("Menyadap Kabel Fisik", 300, 160);
+    }
+}
+
+/* ===== LAB PRAKTIKUM & ZTE ===== */
+const LB = [
+    { t:'Ganti SSID & Password Wi-Fi Rumah (Modem ZTE)', z:1, s:'Pak Budi di Jambi baru dipasang internet rumah. Wi-Fi masih bernama "ZTE-4A2F" dengan sandi dari stiker modem, dan tetangga sudah tahu sandinya. Login ke modem ZTE (alamat 192.168.1.1; stiker belakang: user / user), buka Network › WLAN, ganti SSID, pakai WPA2-PSK dengan sandi baru minimal 8 karakter, lalu sambungkan HP dengan sandi baru.'},
+    { t:'Analisis: Sinyal Biner di Kabel', s:'Amati pengiriman sinyal biner (01101) berbentuk impuls listrik melintasi media kabel tembaga. Di lapisan manakah representasi fisik dari bit data ini terjadi?', z:'lsim', sim:'phys_el', ans:1},
+    { t:'Analisis: Pengalamatan Fisik (MAC Address)', s:'Sebuah Switch memeriksa alamat "Dest MAC" (MAC Tujuan) pada Frame untuk menentukan ke port mana Frame tersebut harus diteruskan. Proses switching ini bekerja di layer?', z:'lsim', sim:'dl_mac', ans:2},
+    { t:'Analisis: Rute Antar Jaringan (Routing IP)', s:'Router memeriksa "Dest IP" (IP Tujuan) pada Packet untuk menentukan jalur terbaik menuju jaringan luar. Di lapisan manakah ini terjadi?', z:'lsim', sim:'net_ip', ans:3},
+    { t:'Analisis: Jabat Tangan TCP & Port', s:'Sebelum data dikirim, Klien dan Server melakukan 3-Way Handshake (SYN, SYN-ACK, ACK) dan menyepakati nomor Port (contoh: Port 80). Di layer manakah proses ini?', z:'lsim', sim:'trans_tcp', ans:4},
+    { t:'Analisis: Protokol HTTP (Web)', s:'Browser web membuat pesan HTTP GET Request untuk meminta halaman HTML dari web server. Di layer manakah interaksi aplikasi dengan format data berlangsung?', z:'lsim', sim:'app_http', ans:7},
+    { t:'Analisis: Pencarian MAC dari IP (ARP)', s:'Sebuah perangkat mengirim broadcast ARP (Who has IP 1.1? Tell MAC Y) ke seluruh jaringan lokal. Proses pengumpulan alamat hardware ini masuk dalam layer?', z:'lsim', sim:'dl_arp', ans:2},
+    { t:'Analisis: Streaming Cepat Tanpa Koneksi (UDP)', s:'Data video terus dikirim menggunakan protokol UDP beserta nomor Port-nya tanpa menunggu konfirmasi (ACK) agar streaming tidak lag. Ini fungsi layer?', z:'lsim', sim:'trans_udp', ans:4},
+    { t:'Analisis: Uji Konektivitas (Ping / ICMP)', s:'Perintah ping memancarkan paket ICMP Echo Request untuk menguji jangkauan host berdasar alamat IP. Protokol ICMP berada di layer?', z:'lsim', sim:'net_icmp', ans:3},
+    { t:'Analisis: Transmisi Gelombang Radio (Wi-Fi)', s:'Data diubah menjadi modulasi gelombang radio nirkabel yang dipancarkan oleh Access Point ke udara bebas tanpa wujud kabel. Ini beroperasi di layer?', z:'lsim', sim:'phys_wifi', ans:1}
+];
+const lbd = Array(10).fill(0);
+LB.forEach((c,i)=>{const b=document.createElement('button');b.id='lb'+i;b.textContent=i+1;b.title=c.t;b.onclick=()=>lbOpen(i);h('lq').appendChild(b)});
+function lbup(){lbd.forEach((d,i)=>h('lb'+i).textContent=(d?'✓ ':'')+(i+1));h('lsc').textContent='Selesai: '+lbd.filter(x=>x).length+' / 10'}lbup();
+
+let Z={}; const ZM=[['st','Status'],['wl','Network › WLAN'],['sc','Security'],['ap','Application'],['ad','Administration']];
+function lbOpen(i) {
+    const c = LB[i];
+    h('lbox').innerHTML = `<h3>Soal ${i+1}: ${c.t}</h3><p>${c.s}</p><div id="lbx"></div>`;
+    
+    if (c.z === 1) { // Soal 1 (ZTE)
+        Z={on:0,pg:'st',ssid:'ZTE-4A2F',pw:'zte12345',au:'WPA2-PSK',ap:0}; zr();
+    } 
+    else if (c.z === 'lsim') { // Soal 2-10 (Simulasi)
+        h('lbx').innerHTML = `
+        <canvas id="lsimcv" width="600" height="200"></canvas>
+        <div class="row" style="margin-top:15px; justify-content:center;">
+            <select id="lsel">
+                <option value="0">-- Pilih Lapisan (Layer) --</option>
+                <option value="1">Layer 1: Physical (Fisik / Kabel / Radio)</option>
+                <option value="2">Layer 2: Data Link (MAC / Switch / Frame)</option>
+                <option value="3">Layer 3: Network (IP / Router / Packet)</option>
+                <option value="4">Layer 4: Transport (TCP / UDP / Port / Segment)</option>
+                <option value="7">Layer 7: Application (HTTP / Web / Data)</option>
+            </select>
+            <button onclick="checkLayer(${i})">✔ Jawab</button>
+        </div><div id="lbr" class="cap" style="text-align:center;"></div>`;
+        window.lsimType = c.sim; window.lsimT = 0;
+    }
+}
+
+/* Fungsi Logika ZTE */
+function zr(){
+    const o=h('lbx'); if(!o) return;
+    if(!Z.on){
+        o.innerHTML=`<div class="zte"><div class="zad">🔒 http://192.168.1.1</div><div class="zh"><b>ZTE</b><span>ZXHN F670L</span></div><div style="padding:26px;max-width:340px;margin:auto"><p>Silakan login untuk mengatur modem.</p><table><tr><td>Username</td><td><input id="zu"></td></tr><tr><td>Password</td><td><input id="zp" type="password"></td></tr></table><button class="zbtn" onclick="zlog()">Login</button><p id="zm" style="color:#c00"></p></div></div>`; return;
+    }
+    const m=ZM.map(a=>`<div class="${Z.pg==a[0]?'a':''}" onclick="Z.pg='${a[0]}';zr()">${a[1]}</div>`).join('');let c;
+    if(Z.pg=='st')c=`<h4>Device Information</h4><table><tr><td>Model</td><td>ZXHN F670L</td></tr><tr><td>WAN IP</td><td>114.10.23.45</td></tr><tr><td>SSID</td><td>${Z.ssid}</td></tr></table>`;
+    else if(Z.pg=='wl')c=`<h4>WLAN › SSID Settings</h4><table><tr><td>SSID Name</td><td><input id="zs" value="${Z.ssid}"></td></tr><tr><td>Authentication</td><td><select id="zt">${['Open System','WPA2-PSK'].map(x=>`<option${x==Z.au?' selected':''}>${x}</option>`).join('')}</select></td></tr><tr><td>WPA Passphrase</td><td><input id="zk" type="text" value="${Z.pw}"></td></tr></table><button class="zbtn" onclick="zap()">Apply</button><p id="zm" style="color:#c00"></p>`;
+    else c='<p>Menu ini tidak dipakai pada soal ini.</p>';
+    o.innerHTML=`<div class="zte"><div class="zad">🔒 http://192.168.1.1/start.ghtml</div><div class="zh"><b>ZTE</b><span>Selamat datang</span></div><div class="zb"><div class="zs">${m}</div><div class="zc">${c}</div></div></div>`+(Z.ap?`<div class="phone"><b>📱 HP Pak Budi — Wi-Fi</b><p>Sambung ke: <b>${Z.ssid}</b></p><input id="zhp" type="password" placeholder="Masukkan sandi"> <button onclick="zcon()">Sambung</button><div id="zr"></div></div>`:'');
+}
+window.zlog = function(){if(h('zu').value=='user'&&h('zp').value=='user'){Z.on=1;zr()}else h('zm').textContent='Login salah.'}
+window.zap = function(){
+    const s=h('zs').value, a=h('zt').value, k=h('zk').value, e=[];
+    if(!s||s=='ZTE-4A2F') e.push('Ganti SSID.'); if(a=='Open System') e.push('Gunakan WPA2-PSK.'); else if(k.length<8) e.push('Sandi min 8 char.'); else if(k=='zte12345') e.push('Sandi bawaan dilarang.');
+    if(e.length){h('zm').textContent=e.join(' ');return}
+    Z.ssid=s;Z.pw=k;Z.au=a;Z.ap=1;zr();h('zr').innerHTML='<small>Tersimpan. Sambungkan ulang HP.</small>';
+}
+window.zcon = function(){
+    if(h('zhp').value==Z.pw){ h('zr').innerHTML='<p style="color:var(--ok)">✅ Terhubung. Soal 1 selesai!</p>'; lbd[0]=1; lbup(); } 
+    else h('zr').innerHTML='<p style="color:var(--bad)">❌ Sandi salah.</p>';
+}
+
+/* Fungsi Cek Layer */
+window.checkLayer = i => {
+    const val = +h('lsel').value, r = h('lbr');
+    if(val === 0) { r.innerHTML = '⚠ Pilih layer terlebih dahulu dari dropdown.'; return; }
+    if(val === LB[i].ans) {
+        r.style.color = 'var(--ok)'; r.innerHTML = `✅ Benar Sekali! Operasi ini bekerja pada Layer ${LB[i].ans}.`; 
+        lbd[i]=1; lbup();
+    } else {
+        r.style.color = 'var(--bad)'; r.innerHTML = `❌ Salah. Silakan amati lagi data utama yang dikirim pada animasi.`;
+    }
+}
+
+/* Rendering Animasi Lab Layer */
+function drawLSim(dt) {
+    if(!h('lsimcv')) return;
+    window.lsimT += dt; const x = h('lsimcv').getContext('2d');
+    x.clearRect(0,0,600,200); x.font = '12px system-ui'; x.textAlign='center';
+    
+    const drawPC = (px, py, txt) => { x.fillStyle='#1b2742'; x.fillRect(px-25, py-20, 50, 40); x.fillStyle='#9fb0d3'; x.fillText(txt, px, py-30); };
+    const drawSW = (px, py, txt) => { x.fillStyle='#2c3e50'; x.fillRect(px-30, py-15, 60, 30); x.fillStyle='#9fb0d3'; x.fillText(txt, px, py-25); };
+    const drawRT = (px, py, txt) => { x.fillStyle='#34495e'; x.beginPath(); x.arc(px, py, 20, 0, 7); x.fill(); x.fillStyle='#9fb0d3'; x.fillText(txt, px, py-30); };
+    
+    let type = window.lsimType;
+    let cycle = window.lsimT % 4, p = cycle / 2; // p from 0 to 2
+    
+    if(type === 'phys_el') {
+        drawPC(100, 100, 'Pengirim'); drawPC(500, 100, 'Penerima');
+        x.strokeStyle='#b8793a'; x.lineWidth=4; x.beginPath(); x.moveTo(125, 100); x.lineTo(475, 100); x.stroke();
+        let pp = (window.lsimT*0.8) % 1; 
+        x.fillStyle='#ffd166'; x.fillRect(125 + pp*350, 85, 20, 30);
+        x.fillStyle='#000'; x.fillText("0110", 125 + pp*350 + 10, 105);
+        x.fillStyle='#e8eefc'; x.fillText("Bit mengalir sebagai sinyal listrik di kabel UTP", 300, 160);
+    } 
+    else if(type === 'dl_mac') {
+        drawPC(100, 100, 'PC (MAC AA)'); drawSW(300, 100, 'Switch'); drawPC(500, 100, 'PC (MAC BB)');
+        if(cycle < 2) {
+            x.fillStyle='#4cc9f0'; x.fillRect(125 + p*145, 80, 80, 40); x.fillStyle='#000'; x.fillText("Dst MAC: BB", 125 + p*145 + 40, 105);
+        } else {
+            let pp = p - 1; // 0 to 1
+            x.fillStyle='#4cc9f0'; x.fillRect(300 + pp*150, 80, 80, 40); x.fillStyle='#000'; x.fillText("Dst MAC: BB", 300 + pp*150 + 40, 105);
+            x.fillStyle='#80ed99'; x.fillText("Switch cek MAC, lalu teruskan ke port BB", 300, 160);
+        }
+    }
+    else if(type === 'net_ip') {
+        drawPC(100, 100, 'PC Lokal'); drawRT(300, 100, 'Router'); drawPC(500, 100, 'Server Web');
+        let txt = "Src IP: 192.168.1.5 | Dst IP: 8.8.8.8";
+        if(cycle < 2) {
+            x.fillStyle='#a78bfa'; x.fillRect(125 + p*155, 85, 180, 30); x.fillStyle='#000'; x.fillText(txt, 125 + p*155 + 90, 105);
+        } else {
+            let pp = p - 1;
+            x.fillStyle='#a78bfa'; x.fillRect(300 + pp*175, 85, 180, 30); x.fillStyle='#000'; x.fillText(txt, 300 + pp*175 + 90, 105);
+            x.fillStyle='#80ed99'; x.fillText("Router mencari rute terbaik berdasarkan IP Tujuan", 300, 160);
+        }
+    }
+    else if(type === 'trans_tcp') {
+        drawPC(100, 100, 'Klien'); drawPC(500, 100, 'Server');
+        let step = Math.floor(window.lsimT % 6);
+        let move = (window.lsimT % 1);
+        x.fillStyle='#ffd166'; x.font="bold 13px system-ui";
+        if(step===0) { x.fillText("SYN →", 125 + move*350, 105); }
+        else if(step===1) { x.fillText("← SYN-ACK", 475 - move*350, 105); }
+        else if(step===2) { x.fillText("ACK →", 125 + move*350, 105); }
+        else { x.fillStyle='#4cc9f0'; x.fillText("DATA (Port 80) →", 125 + (move)*350, 105); }
+        x.fillStyle='#e8eefc'; x.font="12px system-ui"; x.fillText("Proses jabat tangan yang andal + Penentuan Port", 300, 160);
+    }
+    else if(type === 'app_http') {
+        drawPC(100, 100, 'Browser'); drawPC(500, 100, 'Web Server');
+        if(cycle < 2) {
+            x.fillStyle='#c77dff'; x.fillRect(125 + p*350, 80, 120, 30); x.fillStyle='#fff'; x.fillText("GET /index.html", 125 + p*350 + 60, 100);
+        } else {
+            let pp = p - 1;
+            x.fillStyle='#80ed99'; x.fillRect(475 - pp*350 - 120, 80, 120, 30); x.fillStyle='#000'; x.fillText("200 OK <html>...", 475 - pp*350 - 60, 100);
+        }
+        x.fillStyle='#e8eefc'; x.fillText("Komunikasi bahasa aplikasi / antarmuka software", 300, 160);
+    }
+    else if(type === 'dl_arp') {
+        drawPC(100, 100, 'PC Nanya'); drawPC(500, 50, 'PC A'); drawPC(500, 150, 'PC Target (IP 1.1)');
+        if(cycle < 2) {
+            x.fillStyle='#ffd166'; x.fillText("BROADCAST: Siapa punya IP 1.1?", 150 + p*250, 95);
+            x.beginPath(); x.arc(125 + p*350, 50 + p*50, 4,0,7); x.fill();
+            x.beginPath(); x.arc(125 + p*350, 150 - p*50, 4,0,7); x.fill();
+        } else {
+            let pp = p - 1;
+            x.fillStyle='#80ed99'; x.fillText("REPLY: Saya! MAC saya BB:BB", 450 - pp*250, 135);
+        }
+    }
+    else if(type === 'trans_udp') {
+        drawPC(100, 100, 'Server Stream'); drawPC(500, 100, 'Penonton');
+        for(let j=0; j<3; j++) {
+            let p = (window.lsimT*1.5 + j/3) % 1;
+            x.fillStyle='#f78c6b'; x.fillRect(125 + p*350, 90, 40, 20); x.fillStyle='#000'; x.fillText("V-Data", 125 + p*350 + 20, 105);
+        }
+        x.fillStyle='#e8eefc'; x.fillText("Pengiriman cepat terus-menerus tanpa ACK (Tanpa Koneksi)", 300, 160);
+    }
+    else if(type === 'net_icmp') {
+        drawPC(100, 100, 'Admin PC'); drawPC(500, 100, 'Server Target');
+        if(cycle < 2) {
+            x.fillStyle='#4cc9f0'; x.fillText("ICMP Echo Request (Ping) →", 125 + p*350, 105);
+        } else {
+            let pp = p - 1;
+            x.fillStyle='#80ed99'; x.fillText("← ICMP Echo Reply (Pong)", 475 - pp*350, 105);
+        }
+    }
+    else if(type === 'phys_wifi') {
+        drawRT(100, 100, 'Access Point'); drawPC(500, 100, 'HP');
+        x.strokeStyle='#4cc9f0'; x.lineWidth=2;
+        for(let r=0; r<4; r++) {
+            let q = ((window.lsimT*1.2 + r/4) % 1);
+            x.globalAlpha = 1-q; x.beginPath(); x.arc(120, 100, q*380, -0.6, 0.6); x.stroke();
+        }
+        x.globalAlpha = 1; x.fillStyle='#e8eefc'; x.fillText("Pancaran gelombang radio pembawa bit di udara bebas", 300, 160);
+    }
+}
+
+/* Loop Render Utama */
+let lt=0;
+function loop(t){
+    const dt = Math.min((t-lt)/1000||0, .05); lt=t;
+    if(tab=='osi') drawOsi(dt);
+    else if(tab=='med') { drawMed(dt); drawCab(dt); }
+    else if(tab=='glo') { drawSc(dt); drawTop(dt); }
+    else if(tab=='sec') { drawSecAnimation(dt); }
+    else if(tab=='lab') { drawLSim(dt); }
+    requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
